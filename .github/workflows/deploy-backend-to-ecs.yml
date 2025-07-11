@@ -14,7 +14,7 @@ env:
   ECR_REPOSITORY: jimotoko-backend
   ECS_CLUSTER: jimotoko-cluster
   ECS_SERVICE: jimotoko-backend-service
-  ECS_TASK_DEFINITION: jimotoko-backend-task
+  ECS_TASK_DEFINITION: jimotoko-backend
 
 jobs:
   deploy:
