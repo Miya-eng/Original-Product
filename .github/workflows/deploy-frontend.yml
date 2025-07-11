@@ -1,12 +1,12 @@
 name: Deploy Frontend to S3 + CloudFront
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'frontend/**'
   workflow_dispatch:  # 手動実行を許可
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'frontend/**'
 
 env:
   AWS_REGION: ap-northeast-1

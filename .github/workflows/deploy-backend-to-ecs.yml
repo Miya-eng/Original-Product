@@ -1,13 +1,13 @@
 name: Deploy Backend to ECS
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'backend/**'
-      - '.github/workflows/deploy-backend-to-ecs.yml'
   workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'backend/**'
+  #     - '.github/workflows/deploy-backend-to-ecs.yml'
 
 env:
   AWS_REGION: ap-northeast-1
