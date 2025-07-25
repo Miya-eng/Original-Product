@@ -17,12 +17,12 @@ export const createPost = async (
 };
 
 export const getPosts = async (token?: string, searchQuery?: string) => {
-  const headers: any = {};
+  const headers: Record<string, string> = {};
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
   
-  const params: any = {};
+  const params: Record<string, string> = {};
   if (searchQuery) {
     params.q = searchQuery;
   }

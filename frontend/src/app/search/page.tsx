@@ -28,7 +28,6 @@ export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // 初回ロード時に全ての投稿を取得
   useEffect(() => {
@@ -42,7 +41,6 @@ export default function SearchPage() {
         console.error('Failed to fetch posts:', error);
       } finally {
         setIsLoading(false);
-        setIsInitialLoad(false);
       }
     };
     fetchInitialPosts();
