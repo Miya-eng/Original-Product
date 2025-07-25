@@ -34,8 +34,9 @@ export default function HomePage() {
 
   const fetchPosts = async () => {
     try {
-      const response = await getPosts();
-      setPosts(response.data);
+      const token = localStorage.getItem('accessToken');
+      const data = await getPosts(token || undefined);
+      setPosts(data);
     } catch (err) {
       setError('投稿の取得に失敗しました');
       console.error(err);

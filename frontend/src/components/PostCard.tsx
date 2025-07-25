@@ -33,6 +33,9 @@ export default function PostCard({ post }: PostCardProps) {
   const [likeCount, setLikeCount] = useState(post.like_count);
   const [isLiking, setIsLiking] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  
+  // API URLから画像用のベースURLを取得
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000';
 
   const handleLike = async () => {
     const token = localStorage.getItem('accessToken');
@@ -78,7 +81,7 @@ export default function PostCard({ post }: PostCardProps) {
       {post.image && (
         <div className="relative aspect-w-16 aspect-h-9 bg-gray-200 h-48">
           <Image
-            src={`http://localhost:8000${post.image}`}
+            src={post.image.startsWith('http') ? post.image : `${apiBaseUrl}${post.image}`}
             alt={post.title}
             fill
             className="object-cover"

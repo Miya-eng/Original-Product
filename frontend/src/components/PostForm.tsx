@@ -72,10 +72,29 @@ export default function PostForm() {
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
+
+    // Google Maps APIの読み込み状態を監視
+    useEffect(() => {
+        const checkGoogleMaps = () => {
+            if (window.google && window.google.maps) {
+                setIsGoogleLoaded(true);
+            }
+        };
+        
+        // 初回チェック
+        checkGoogleMaps();
+        
+        // まだ読み込まれていない場合は定期的にチェック
+        if (!isGoogleLoaded) {
+            const interval = setInterval(checkGoogleMaps, 100);
+            return () => clearInterval(interval);
+        }
+    }, [isGoogleLoaded]);
 
     // Autocomplete初期化
     useEffect(() => {
-        if (!window.google || !inputRef.current) return;
+        if (!isGoogleLoaded || !inputRef.current) return;
 
         const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
             types: ['establishment', 'geocode'],
@@ -88,11 +107,11 @@ export default function PostForm() {
             // 入力欄には選択した名称（スポット名）が自動で入る
             inputRef.current!.value = place.name || '';
         });
-    }, []);
+    }, [isGoogleLoaded]);
 
     // Map表示・ピン更新
     useEffect(() => {
-        if (!window.google) return;
+        if (!isGoogleLoaded) return;
 
         if (!map && placeResult && placeResult.geometry) {
             const mapElement = document.getElementById('map');
@@ -114,7 +133,7 @@ export default function PostForm() {
             map.setCenter(placeResult.geometry.location);
             marker.setPosition(placeResult.geometry.location);
         }
-    }, [placeResult, map, marker]);
+    }, [placeResult, map, marker, isGoogleLoaded]);
 
     // 画像選択ハンドラー
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -206,6 +225,7 @@ export default function PostForm() {
             <Script
                 src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
                 strategy="afterInteractive"
+                onLoad={() => setIsGoogleLoaded(true)}
             />
             <div className="max-w-2xl mx-auto p-4">
                 <h1 className="text-2xl font-bold mb-6">新規投稿</h1>
@@ -252,7 +272,11 @@ export default function PostForm() {
                             placeholder="スポット名または住所で検索"
                             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             autoComplete="off"
+                            disabled={!isGoogleLoaded}
                         />
+                        {!isGoogleLoaded && (
+                            <p className="text-sm text-gray-500 mt-1">マップを読み込み中...</p>
+                        )}
                     </div>
 
                     {/* 地図表示 */}

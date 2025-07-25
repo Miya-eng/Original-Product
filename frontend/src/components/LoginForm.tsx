@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { login } from '@/api/auth';
 
 export default function LoginForm() {
@@ -35,30 +36,38 @@ export default function LoginForm() {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-                type="email"
-                name="email"
-                placeholder="メールアドレス"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full p-3 bg-gray-100 text-sm placeholder-gray-500"
-            />
-            <input
-                type="password"
-                name="password"
-                placeholder="パスワード"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="w-full p-3 bg-gray-100 text-sm placeholder-gray-500"
-            />
-            <button type="submit" className="w-full bg-blue-500 text-white text-lg font-semibold py-2 mt-2 hover:bg-blue-600">
-                Continue
-            </button>
-            {message.error && <p className="text-red-500 text-sm">{message.error}</p>}
-            {message.success && <p className="text-green-500 text-sm">{message.success}</p>}
-        </form>
+        <>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="メールアドレス"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className="w-full p-3 bg-gray-100 text-sm placeholder-gray-500"
+                />
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="パスワード"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    className="w-full p-3 bg-gray-100 text-sm placeholder-gray-500"
+                />
+                <button type="submit" className="w-full bg-blue-500 text-white text-lg font-semibold py-2 mt-2 hover:bg-blue-600">
+                    Continue
+                </button>
+                {message.error && <p className="text-red-500 text-sm">{message.error}</p>}
+                {message.success && <p className="text-green-500 text-sm">{message.success}</p>}
+            </form>
+            <div className="text-sm text-center mt-6">
+                まだ登録済みでない方は{" "}
+                <Link href="/signup" className="text-blue-600 hover:underline">
+                    こちらから新規登録
+                </Link>
+            </div>
+        </>
     );
 }

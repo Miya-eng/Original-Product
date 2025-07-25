@@ -8,7 +8,7 @@ export default function HomePage() {
           {/* ヘッダー */}
           <div className="mb-12">
             <h1 className="text-5xl font-bold text-gray-900 mb-4">
-              地元とこ
+              Jimotoko
             </h1>
             <p className="text-xl text-gray-600 mb-8">
               あなたの地元の魅力を発見・シェアしよう
@@ -18,7 +18,7 @@ export default function HomePage() {
           {/* アプリケーションの紹介 */}
           <div className="bg-white rounded-xl shadow-lg p-8 mb-12">
             <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-              地元とこでできること
+              Jimotokoでできること
             </h2>
             
             <div className="grid md:grid-cols-3 gap-6 mb-8">

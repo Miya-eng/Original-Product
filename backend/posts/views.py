@@ -5,6 +5,7 @@ from rest_framework import generics, permissions, serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
+from django.db.models import Q
 from .models import Post, Comment, PostLike, CommentLike
 from .serializers.post import PostSerializer
 from .serializers.comment import CommentSerializer
@@ -20,9 +21,25 @@ class PostCreateView(generics.CreateAPIView):
 
 # 投稿一覧取得API（誰でも見れる）
 class PostListView(generics.ListAPIView):
-    queryset = Post.objects.all().order_by('-created_at')  # 最新順
     serializer_class = PostSerializer
     permission_classes = [permissions.AllowAny]  # 認証不要
+    
+    def get_queryset(self):
+        queryset = Post.objects.all().order_by('-created_at')  # 最新順
+        
+        # 検索クエリパラメータを取得
+        search_query = self.request.query_params.get('q', None)
+        
+        if search_query:
+            # タイトル、本文、市区町村、ユーザー名で検索
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) |
+                Q(body__icontains=search_query) |
+                Q(city__icontains=search_query) |
+                Q(user__username__icontains=search_query)
+            )
+        
+        return queryset
 
 # 自分の投稿一覧API（認証必須）
 class MyPostListView(generics.ListAPIView):

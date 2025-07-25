@@ -16,8 +16,22 @@ export const createPost = async (
   return await axios.post(`${API_BASE_URL}/posts/`, data, { headers });
 };
 
-export const getPosts = async () => {
-  return await axios.get(`${API_BASE_URL}/posts/list/`);
+export const getPosts = async (token?: string, searchQuery?: string) => {
+  const headers: any = {};
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  const params: any = {};
+  if (searchQuery) {
+    params.q = searchQuery;
+  }
+  
+  const response = await axios.get(`${API_BASE_URL}/posts/list/`, {
+    headers,
+    params
+  });
+  return response.data;
 };
 
 export const getMyPosts = async (token: string | null) => {
