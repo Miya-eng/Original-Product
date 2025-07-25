@@ -31,10 +31,10 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-4c*ud=s014+8gm#hv0jwzj$m_7
 DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
 # 本番環境でのホスト設定
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')]
 
 
-# Application definition
+# Application definitions
 
 INSTALLED_APPS = [
     'django.contrib.admin',
