@@ -18,16 +18,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.http import JsonResponse
-
-def health_check(request):
-    return JsonResponse({"status": "healthy"}, status=200)
+from .health_check import health_check
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('users.urls')),
     path('api/posts/', include('posts.urls')),
-    path('health/', health_check),
+    path('api/health/', health_check),
 ]
 
 # 画像アップロード対応

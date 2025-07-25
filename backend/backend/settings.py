@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# .env ファイルを読み込む
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +25,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-4c*ud=s014+8gm#hv0jwzj$m_7l-4)3a8la4a8#w%xupug-bt^'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-4c*ud=s014+8gm#hv0jwzj$m_7l-4)3a8la4a8#w%xupug-bt^')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = []
+# 本番環境でのホスト設定
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -93,10 +99,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'backend.urls'
 
-# フロントが http://localhost:3000 の場合（開発用）
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
+# CORS設定（開発・本番環境対応）
+CORS_ALLOWED_ORIGINS = os.getenv(
+    'CORS_ALLOWED_ORIGINS', 
+    'http://localhost:3000'
+).split(',')
 
 TEMPLATES = [
     {
@@ -119,12 +126,23 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# 環境変数からデータベース設定を取得
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+if DATABASE_URL:
+    # 本番環境（PostgreSQL）
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL)
     }
-}
+else:
+    # 開発環境（SQLite）
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_USER_MODEL = 'users.CustomUser'
 

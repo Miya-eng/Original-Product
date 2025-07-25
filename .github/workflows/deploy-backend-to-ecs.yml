@@ -51,11 +51,36 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
+    - name: Run database migrations
+      run: |
+        echo "🔄 データベースマイグレーションを実行中..."
+        # ECSタスクでマイグレーションを実行
+        aws ecs run-task \
+          --cluster ${{ env.ECS_CLUSTER }} \
+          --task-definition ${{ env.ECS_TASK_DEFINITION }} \
+          --overrides '{
+            "containerOverrides": [{
+              "name": "jimotoko-backend",
+              "command": ["python", "manage.py", "migrate"]
+            }]
+          }' \
+          --launch-type FARGATE \
+          --network-configuration '{
+            "awsvpcConfiguration": {
+              "subnets": ["subnet-0123456789abcdef0"],
+              "securityGroups": ["sg-0123456789abcdef0"],
+              "assignPublicIp": "ENABLED"
+            }
+          }' || echo "⚠️ マイグレーションタスクの実行に失敗しました（初回デプロイの場合は正常）"
+
     - name: Download task definition
       run: |
-        aws ecs describe-task-definition \
-          --task-definition ${{ env.ECS_TASK_DEFINITION }} \
-          --query taskDefinition > task-definition.json
+        if aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION }} --query taskDefinition > task-definition.json 2>/dev/null; then
+          echo "✅ 既存のタスク定義を取得しました"
+        else
+          echo "📋 新しいタスク定義を使用します"
+          cp ecs-task-definition.json task-definition.json
+        fi
 
     - name: Update task definition
       id: task-def
@@ -64,6 +89,13 @@ jobs:
         task-definition: task-definition.json
         container-name: jimotoko-backend
         image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+
+    - name: Register new task definition (if needed)
+      run: |
+        if ! aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION }} >/dev/null 2>&1; then
+          echo "📝 新しいタスク定義を登録中..."
+          aws ecs register-task-definition --cli-input-json file://ecs-task-definition.json
+        fi
 
     - name: Deploy to ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
