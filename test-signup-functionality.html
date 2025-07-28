@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jimotoko サインアップ機能テスト</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input { width: 300px; padding: 8px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .result { margin-top: 20px; padding: 10px; background: #f8f9fa; border: 1px solid #dee2e6; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+    </style>
+</head>
+<body>
+    <h1>Jimotoko サインアップ機能テスト</h1>
+    
+    <form id="signupForm">
+        <div class="form-group">
+            <label for="username">ユーザーネーム:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="user_id">ユーザーID:</label>
+            <input type="text" id="user_id" name="user_id" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="residence_prefecture">都道府県:</label>
+            <input type="text" id="residence_prefecture" name="residence_prefecture" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="residence_city">市区町村:</label>
+            <input type="text" id="residence_city" name="residence_city" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">メールアドレス:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">パスワード:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password_confirm">確認用パスワード:</label>
+            <input type="password" id="password_confirm" name="password_confirm" required>
+        </div>
+        
+        <button type="submit">サインアップ</button>
+    </form>
+    
+    <div id="result" class="result" style="display: none;"></div>
+    
+    <h2>テスト情報</h2>
+    <p><strong>フロントエンドURL:</strong> https://jimotoko.com</p>
+    <p><strong>バックエンドURL:</strong> http://jimotoko-backend-alb-712943240.ap-northeast-1.elb.amazonaws.com</p>
+    <p><strong>ヘルスチェック:</strong> <span id="healthStatus">確認中...</span></p>
+    
+    <script>
+        // ヘルスチェック
+        async function checkHealth() {
+            const healthStatus = document.getElementById('healthStatus');
+            try {
+                const response = await fetch('http://jimotoko-backend-alb-712943240.ap-northeast-1.elb.amazonaws.com/api/health/', {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    healthStatus.textContent = '✅ バックエンドは正常に動作しています';
+                    healthStatus.style.color = 'green';
+                } else {
+                    healthStatus.textContent = '❌ バックエンドからエラー応答: ' + response.status;
+                    healthStatus.style.color = 'red';
+                }
+            } catch (error) {
+                healthStatus.textContent = '❌ バックエンドに接続できません: ' + error.message;
+                healthStatus.style.color = 'red';
+            }
+        }
+        
+        // サインアップフォーム送信
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('result');
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            // パスワード確認
+            if (data.password !== data.password_confirm) {
+                resultDiv.innerHTML = '<strong>エラー:</strong> パスワードが一致しません。';
+                resultDiv.className = 'result error';
+                resultDiv.style.display = 'block';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<strong>送信中...</strong>';
+            resultDiv.className = 'result';
+            resultDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch('http://jimotoko-backend-alb-712943240.ap-northeast-1.elb.amazonaws.com/api/auth/register/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const responseData = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = '<strong>成功!</strong><br>' + JSON.stringify(responseData, null, 2);
+                    resultDiv.className = 'result success';
+                    e.target.reset();
+                } else {
+                    resultDiv.innerHTML = '<strong>エラー:</strong><br>' + JSON.stringify(responseData, null, 2);
+                    resultDiv.className = 'result error';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<strong>ネットワークエラー:</strong> ' + error.message;
+                resultDiv.className = 'result error';
+            }
+        });
+        
+        // ページ読み込み時にヘルスチェック実行
+        checkHealth();
+    </script>
+</body>
+</html>
