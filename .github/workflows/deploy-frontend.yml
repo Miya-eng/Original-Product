@@ -39,7 +39,7 @@ jobs:
         cd frontend
         npm run build
       env:
-        NEXT_PUBLIC_API_URL: http://43.207.110.17:8000/api
+        NEXT_PUBLIC_API_URL: http://35.77.218.101:8000/api
         NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
         NEXT_PUBLIC_ENV: production
 

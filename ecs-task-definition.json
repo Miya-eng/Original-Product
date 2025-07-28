@@ -24,7 +24,7 @@
         },
         {
           "name": "ALLOWED_HOSTS",
-          "value": "api.jimotoko.com,localhost,13.231.158.170,43.207.110.17"
+          "value": "api.jimotoko.com,localhost,13.231.158.170,43.207.110.17,35.77.218.101"
         },
         {
           "name": "CORS_ALLOWED_ORIGINS",
