@@ -18,15 +18,26 @@ class RegisterSerializer(serializers.ModelSerializer):
         prefecture = data.get('residence_prefecture')
         city = data.get('residence_city')
         api_key = os.getenv('GOOGLE_GEOCODING_API_KEY')
-        if not api_key:
-            raise serializers.ValidationError("API keyが見つかりません。")
+        
+        # 開発環境では住所バリデーションをスキップ
+        if os.getenv('DEBUG', 'False').lower() == 'true' and api_key == 'your-google-api-key-here':
+            print(f"⚠️ 開発環境: 住所バリデーションをスキップしました ({prefecture}{city})")
+            return data
+            
+        if not api_key or api_key == 'your-google-api-key-here':
+            raise serializers.ValidationError("本番環境では有効なGoogle Geocoding API keyが必要です。")
+            
         address = f"{prefecture}{city}"
         url = f"https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={api_key}"
-        response = requests.get(url)
-        result = response.json()
+        
+        try:
+            response = requests.get(url, timeout=10)
+            result = response.json()
 
-        if result['status'] != 'OK':
-            raise serializers.ValidationError("住所が見つかりませんでした。")
+            if result['status'] != 'OK':
+                raise serializers.ValidationError("住所が見つかりませんでした。")
+        except requests.RequestException:
+            raise serializers.ValidationError("住所の検証中にエラーが発生しました。")
         
         return data
         

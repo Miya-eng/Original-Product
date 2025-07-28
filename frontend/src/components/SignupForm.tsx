@@ -34,7 +34,7 @@ export default function SignupForm() {
 
         try {
             await signup({
-                username: formData.username,
+                username: formData.userId || formData.username, // userIdをusernameとして使用
                 email: formData.email,
                 password: formData.password,
                 residence_prefecture: formData.residence_prefecture,
@@ -45,9 +45,39 @@ export default function SignupForm() {
                 router.push('/login');
             }, 1500);
 
-        } catch (err) {
-            console.error(err);
-            setError('登録に失敗しました。');
+        } catch (err: unknown) {
+            console.error('Registration error:', err);
+            
+            // 詳細なエラーメッセージを表示
+            if (err && typeof err === 'object' && 'response' in err) {
+                const error = err as { response?: { data?: Record<string, unknown> } };
+                const errorData = error.response?.data;
+                console.log('Error details:', errorData);
+                
+                if (typeof errorData === 'string') {
+                    setError(errorData);
+                } else if (errorData && typeof errorData === 'object') {
+                    if (Array.isArray(errorData.username)) {
+                        setError(`ユーザーID: ${errorData.username[0]}`);
+                    } else if (Array.isArray(errorData.email)) {
+                        setError(`メールアドレス: ${errorData.email[0]}`);
+                    } else if (Array.isArray(errorData.password)) {
+                        setError(`パスワード: ${errorData.password[0]}`);
+                    } else if (Array.isArray(errorData.residence_prefecture)) {
+                        setError(`都道府県: ${errorData.residence_prefecture[0]}`);
+                    } else if (Array.isArray(errorData.residence_city)) {
+                        setError(`市区町村: ${errorData.residence_city[0]}`);
+                    } else if (Array.isArray(errorData.non_field_errors)) {
+                        setError(errorData.non_field_errors[0] as string);
+                    } else {
+                        setError('登録に失敗しました。入力内容を確認してください。');
+                    }
+                } else {
+                    setError('登録に失敗しました。入力内容を確認してください。');
+                }
+            } else {
+                setError('サーバーに接続できません。ネットワーク接続を確認してください。');
+            }
         }
     };
 

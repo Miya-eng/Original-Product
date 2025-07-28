@@ -2,8 +2,8 @@
   "family": "jimotoko-backend",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
-  "cpu": "256",
-  "memory": "512",
+  "cpu": "512",
+  "memory": "1024",
   "executionRoleArn": "arn:aws:iam::162174360270:role/ecsTaskExecutionRole",
   "taskRoleArn": "arn:aws:iam::162174360270:role/ecsTaskRole",
   "containerDefinitions": [
@@ -28,7 +28,7 @@
         },
         {
           "name": "CORS_ALLOWED_ORIGINS",
-          "value": "https://jimotoko.com"
+          "value": "https://jimotoko.com,https://www.jimotoko.com"
         }
       ],
       "secrets": [

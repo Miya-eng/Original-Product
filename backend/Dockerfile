@@ -32,9 +32,11 @@ RUN mkdir -p /app/media/post_images /app/staticfiles
 
 # Create entrypoint script
 RUN echo '#!/bin/sh\n\
-python manage.py migrate\n\
+echo "Starting Django application..."\n\
+python manage.py migrate --noinput\n\
 python manage.py collectstatic --noinput\n\
-gunicorn --bind 0.0.0.0:8000 --workers 2 backend.wsgi:application' > /app/entrypoint.sh
+echo "Starting Gunicorn server..."\n\
+gunicorn --bind 0.0.0.0:8000 --workers 3 --timeout 120 --access-logfile - --error-logfile - backend.wsgi:application' > /app/entrypoint.sh
 
 RUN chmod +x /app/entrypoint.sh
 

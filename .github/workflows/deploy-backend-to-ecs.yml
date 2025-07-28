@@ -2,12 +2,12 @@ name: Deploy Backend to ECS
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - 'backend/**'
-  #     - '.github/workflows/deploy-backend-to-ecs.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-backend-to-ecs.yml'
 
 env:
   AWS_REGION: ap-northeast-1
@@ -67,8 +67,8 @@ jobs:
           --launch-type FARGATE \
           --network-configuration '{
             "awsvpcConfiguration": {
-              "subnets": ["subnet-0123456789abcdef0"],
-              "securityGroups": ["sg-0123456789abcdef0"],
+              "subnets": ["${{ secrets.SUBNET_ID }}"],
+              "securityGroups": ["${{ secrets.SECURITY_GROUP_ID }}"],
               "assignPublicIp": "ENABLED"
             }
           }' || echo "⚠️ マイグレーションタスクの実行に失敗しました（初回デプロイの場合は正常）"

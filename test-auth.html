@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>認証テスト</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input { width: 300px; padding: 8px; margin-bottom: 5px; }
+        button { padding: 10px 20px; margin-right: 10px; }
+        .result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Jimotoko 認証テスト</h1>
+    
+    <h2>サインアップテスト</h2>
+    <form id="signupForm">
+        <div class="form-group">
+            <label>ユーザー名:</label>
+            <input type="text" id="signupUsername" value="testuser2" required>
+        </div>
+        <div class="form-group">
+            <label>メールアドレス:</label>
+            <input type="email" id="signupEmail" value="test2@example.com" required>
+        </div>
+        <div class="form-group">
+            <label>パスワード:</label>
+            <input type="password" id="signupPassword" value="testpassword123" required>
+        </div>
+        <div class="form-group">
+            <label>都道府県:</label>
+            <input type="text" id="signupPrefecture" value="東京都" required>
+        </div>
+        <div class="form-group">
+            <label>市区町村:</label>
+            <input type="text" id="signupCity" value="新宿区" required>
+        </div>
+        <button type="submit">サインアップ</button>
+    </form>
+
+    <h2>ログインテスト</h2>
+    <form id="loginForm">
+        <div class="form-group">
+            <label>メールアドレス:</label>
+            <input type="email" id="loginEmail" value="test@example.com" required>
+        </div>
+        <div class="form-group">
+            <label>パスワード:</label>
+            <input type="password" id="loginPassword" value="testpassword123" required>
+        </div>
+        <button type="submit">ログイン</button>
+    </form>
+
+    <div id="result" class="result" style="display: none;"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000/api';
+        
+        function showResult(message, isSuccess = true) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.className = isSuccess ? 'result success' : 'result error';
+            resultDiv.style.display = 'block';
+        }
+
+        // サインアップテスト
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                username: document.getElementById('signupUsername').value,
+                email: document.getElementById('signupEmail').value,
+                password: document.getElementById('signupPassword').value,
+                residence_prefecture: document.getElementById('signupPrefecture').value,
+                residence_city: document.getElementById('signupCity').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/register/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult(`サインアップ成功！ユーザー: ${data.username}`, true);
+                } else {
+                    const errorData = await response.json();
+                    showResult(`サインアップ失敗: ${JSON.stringify(errorData)}`, false);
+                }
+            } catch (error) {
+                showResult(`サインアップエラー: ${error.message}`, false);
+            }
+        });
+
+        // ログインテスト
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                username: document.getElementById('loginEmail').value,
+                password: document.getElementById('loginPassword').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/login/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('accessToken', data.access);
+                    showResult(`ログイン成功！ユーザー: ${data.username}`, true);
+                } else {
+                    const errorData = await response.json();
+                    showResult(`ログイン失敗: ${JSON.stringify(errorData)}`, false);
+                }
+            } catch (error) {
+                showResult(`ログインエラー: ${error.message}`, false);
+            }
+        });
+    </script>
+</body>
+</html>

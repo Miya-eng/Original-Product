@@ -2,11 +2,12 @@ name: Deploy Frontend to S3 + CloudFront
 
 on:
   workflow_dispatch:  # 手動実行を許可
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - 'frontend/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/deploy-frontend.yml'
 
 env:
   AWS_REGION: ap-northeast-1
@@ -36,9 +37,10 @@ jobs:
     - name: Build application
       run: |
         cd frontend
-        npm run build:prod
+        npm run build
       env:
         NEXT_PUBLIC_API_URL: https://api.jimotoko.com
+        NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
         NEXT_PUBLIC_ENV: production
 
     - name: Configure AWS credentials
