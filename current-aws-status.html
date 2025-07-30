@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>現在のAWS環境構築状況</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #232F3E, #FF9900);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            background: #e0e0e0;
+            height: 30px;
+            border-radius: 15px;
+            margin: 20px 30px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #00c851 0%, #00a651 100%);
+            height: 100%;
+            width: 65%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+        
+        .diagram-container {
+            padding: 40px;
+            background: #f8f9fa;
+        }
+        
+        .status-legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+        
+        .status-complete { background: #00c851; }
+        .status-partial { background: #ffbb33; }
+        .status-missing { background: #ff4444; }
+        .status-optional { background: #33b5e5; }
+        
+        .architecture-diagram {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .service-box {
+            display: inline-block;
+            padding: 15px 20px;
+            margin: 8px;
+            border-radius: 8px;
+            border: 3px solid;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .service-box.complete {
+            background: #e8f5e9;
+            border-color: #00c851;
+        }
+        
+        .service-box.partial {
+            background: #fff8e1;
+            border-color: #ffbb33;
+        }
+        
+        .service-box.missing {
+            background: #ffebee;
+            border-color: #ff4444;
+        }
+        
+        .service-box.optional {
+            background: #e1f5fe;
+            border-color: #33b5e5;
+            border-style: dashed;
+        }
+        
+        .status-icon {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .aws-region {
+            border: 3px solid #FF9900;
+            border-radius: 15px;
+            margin: 20px 0;
+            padding: 25px;
+            background: #fff5f0;
+        }
+        
+        .vpc-container {
+            border: 3px solid #4299e1;
+            border-radius: 12px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f0f7ff;
+        }
+        
+        .subnet {
+            border: 2px solid;
+            border-radius: 8px;
+            margin: 15px 5px;
+            padding: 15px;
+            min-height: 120px;
+        }
+        
+        .public-subnet {
+            background: #ffe0e0;
+            border-color: #e53e3e;
+        }
+        
+        .private-subnet {
+            background: #e0ffe0;
+            border-color: #38a169;
+        }
+        
+        .subnet-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .issue-list {
+            background: #fff5f5;
+            border: 2px solid #ff4444;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .completed-list {
+            background: #e8f5e9;
+            border: 2px solid #00c851;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .todo-list {
+            background: #fff8e1;
+            border: 2px solid #ffbb33;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .connectivity-arrow {
+            text-align: center;
+            font-size: 1.5em;
+            margin: 15px 0;
+            color: #2c3e50;
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .check-item {
+            margin: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .check-item::before {
+            position: absolute;
+            left: 0;
+        }
+        
+        .check-item.done::before {
+            content: "✅";
+        }
+        
+        .check-item.pending::before {
+            content: "⏳";
+        }
+        
+        .check-item.error::before {
+            content: "❌";
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ 現在のAWS環境構築状況</h1>
+            <p>2025年7月28日時点の進捗状況</p>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill">
+                構築進捗: 65%
+            </div>
+        </div>
+        
+        <div class="diagram-container">
+            <div class="status-legend">
+                <div class="legend-item">
+                    <div class="status-indicator status-complete"></div>
+                    <span>構築完了・正常動作</span>
+                </div>
+                <div class="legend-item">
+                    <div class="status-indicator status-partial"></div>
+                    <span>構築済み・設定要修正</span>
+                </div>
+                <div class="legend-item">
+                    <div class="status-indicator status-missing"></div>
+                    <span>未構築・必須</span>
+                </div>
+                <div class="legend-item">
+                    <div class="status-indicator status-optional"></div>
+                    <span>未構築・推奨</span>
+                </div>
+            </div>
+            
+            <div class="architecture-diagram">
+                <!-- Internet Layer -->
+                <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; text-align: center; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h2>🌐 インターネット</h2>
+                </div>
+                
+                <div class="connectivity-arrow">⬇️</div>
+                
+                <!-- Global Services -->
+                <div style="background: #f0f0f0; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                    <h2>🌍 グローバルサービス</h2>
+                    <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+                        <div class="service-box missing">
+                            <strong>❌ CloudFront</strong>
+                            <div class="status-icon">❌</div>
+                            <br>未設定
+                        </div>
+                        <div class="service-box optional">
+                            <strong>Route 53</strong>
+                            <div class="status-icon">➖</div>
+                            <br>未使用
+                        </div>
+                        <div class="service-box optional">
+                            <strong>Certificate Manager</strong>
+                            <div class="status-icon">➖</div>
+                            <br>未使用
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AWS Region -->
+                <div class="aws-region">
+                    <h2 style="color: #FF9900;">🏢 AWS Region (ap-northeast-1)</h2>
+                    
+                    <!-- S3 -->
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h3>💾 S3 (リージョンサービス)</h3>
+                        <div class="service-box complete">
+                            <strong>✅ S3 Bucket</strong>
+                            <div class="status-icon">✅</div>
+                            <br>jimotoko-frontend-s3<br>
+                            静的ファイル配置済み
+                        </div>
+                    </div>
+                    
+                    <!-- VPC Container -->
+                    <div class="vpc-container">
+                        <h2 style="color: #4299e1;">🏠 VPC (デフォルトVPC使用中)</h2>
+                        
+                        <!-- Missing Internet Gateway indication -->
+                        <div style="text-align: center; margin: 15px 0;">
+                            <div class="service-box partial">
+                                <strong>⚠️ Internet Gateway</strong>
+                                <div class="status-icon">⚠️</div>
+                                <br>デフォルトVPCにアタッチ済み<br>
+                                <small>カスタムVPC移行時に再設定必要</small>
+                            </div>
+                        </div>
+                        
+                        <div class="connectivity-arrow">⬇️</div>
+                        
+                        <!-- Subnets Grid -->
+                        <div class="subnet-grid">
+                            <!-- Public Subnets -->
+                            <div class="subnet public-subnet">
+                                <h3>🌐 Public Subnet A</h3>
+                                <div class="service-box partial">
+                                    <strong>⚠️ ALB</strong>
+                                    <div class="status-icon">⚠️</div>
+                                    <br>jimotoko-backend-alb<br>
+                                    ヘルスチェック失敗中
+                                </div>
+                                <div class="service-box missing">
+                                    <strong>❌ NAT Gateway</strong>
+                                    <div class="status-icon">❌</div>
+                                    <br>未作成
+                                </div>
+                            </div>
+                            
+                            <div class="subnet public-subnet">
+                                <h3>🌐 Public Subnet B</h3>
+                                <div class="service-box partial">
+                                    <strong>⚠️ ALB (Multi-AZ)</strong>
+                                    <div class="status-icon">⚠️</div>
+                                    <br>設定済み
+                                </div>
+                                <div class="service-box missing">
+                                    <strong>❌ NAT Gateway</strong>
+                                    <div class="status-icon">❌</div>
+                                    <br>未作成（推奨）
+                                </div>
+                            </div>
+                            
+                            <!-- Private Subnets -->
+                            <div class="subnet private-subnet">
+                                <h3>🔒 Private Subnet A</h3>
+                                <div class="service-box partial">
+                                    <strong>⚠️ ECS Task</strong>
+                                    <div class="status-icon">⚠️</div>
+                                    <br>起動中だがアクセス不可<br>
+                                    <small>ALB未接続</small>
+                                </div>
+                                <div class="service-box complete">
+                                    <strong>✅ CloudWatch Logs</strong>
+                                    <div class="status-icon">✅</div>
+                                    <br>設定済み
+                                </div>
+                            </div>
+                            
+                            <div class="subnet private-subnet">
+                                <h3>🔒 Private Subnet B</h3>
+                                <div class="service-box complete">
+                                    <strong>✅ RDS PostgreSQL</strong>
+                                    <div class="status-icon">✅</div>
+                                    <br>jimotoko-db<br>
+                                    正常動作中
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Missing Components -->
+                        <div style="background: #ffebee; padding: 15px; border-radius: 8px; margin: 15px 0; border: 2px dashed #ff4444;">
+                            <h3 style="color: #ff4444;">🚫 未設定のVPCコンポーネント</h3>
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                <div class="service-box missing">
+                                    <strong>Route Tables</strong><br>
+                                    カスタム設定なし
+                                </div>
+                                <div class="service-box optional">
+                                    <strong>VPC Endpoints</strong><br>
+                                    未作成
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Other Regional Services -->
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h3>✅ 構築済みリージョンサービス</h3>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                            <div class="service-box complete">
+                                <strong>✅ ECR</strong>
+                                <div class="status-icon">✅</div>
+                                <br>jimotoko-backend<br>
+                                イメージ保存済み
+                            </div>
+                            <div class="service-box complete">
+                                <strong>✅ ECS Cluster</strong>
+                                <div class="status-icon">✅</div>
+                                <br>jimotoko-cluster<br>
+                                アクティブ
+                            </div>
+                            <div class="service-box complete">
+                                <strong>✅ Parameter Store</strong>
+                                <div class="status-icon">✅</div>
+                                <br>シークレット設定済み
+                            </div>
+                            <div class="service-box complete">
+                                <strong>✅ IAM Roles</strong>
+                                <div class="status-icon">✅</div>
+                                <br>必要なロール作成済み
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Current Issues -->
+            <div class="issue-list">
+                <div class="section-title">
+                    <h2>🚨 現在の問題点</h2>
+                </div>
+                <div class="check-item error">
+                    <strong>ALBヘルスチェック失敗:</strong> Target.Timeout - ECSタスクへの通信不可
+                </div>
+                <div class="check-item error">
+                    <strong>NAT Gateway未設定:</strong> プライベートサブネットからのインターネット接続不可
+                </div>
+                <div class="check-item error">
+                    <strong>ECSサービスとALB未接続:</strong> ロードバランサーのターゲットグループ未設定
+                </div>
+                <div class="check-item error">
+                    <strong>CloudFront未設定:</strong> フロントエンドのCDN配信なし
+                </div>
+                <div class="check-item error">
+                    <strong>セキュリティグループ設定不備:</strong> ALB→ECS間の通信設定要確認
+                </div>
+            </div>
+            
+            <!-- Completed Items -->
+            <div class="completed-list">
+                <div class="section-title">
+                    <h2>✅ 構築完了項目</h2>
+                </div>
+                <div class="check-item done">
+                    <strong>ECS Fargate:</strong> クラスター、サービス、タスク定義作成済み
+                </div>
+                <div class="check-item done">
+                    <strong>RDS PostgreSQL:</strong> データベース正常稼働中
+                </div>
+                <div class="check-item done">
+                    <strong>S3:</strong> フロントエンドファイル配置済み
+                </div>
+                <div class="check-item done">
+                    <strong>ECR:</strong> Dockerイメージリポジトリ設定済み
+                </div>
+                <div class="check-item done">
+                    <strong>Parameter Store:</strong> 環境変数・シークレット設定済み
+                </div>
+                <div class="check-item done">
+                    <strong>IAMロール:</strong> 必要な権限設定済み
+                </div>
+                <div class="check-item done">
+                    <strong>ALB:</strong> 作成済み（ただし接続設定要修正）
+                </div>
+            </div>
+            
+            <!-- TODO Items -->
+            <div class="todo-list">
+                <div class="section-title">
+                    <h2>📋 必要な作業項目（優先順）</h2>
+                </div>
+                <div class="check-item pending">
+                    <strong>1. ECSサービスをALBに接続:</strong> update-serviceコマンドで接続
+                </div>
+                <div class="check-item pending">
+                    <strong>2. セキュリティグループ修正:</strong> ALB→ECS間の8000番ポート許可
+                </div>
+                <div class="check-item pending">
+                    <strong>3. NAT Gateway作成:</strong> パブリックサブネットに配置
+                </div>
+                <div class="check-item pending">
+                    <strong>4. ルートテーブル設定:</strong> プライベートサブネット→NAT Gateway
+                </div>
+                <div class="check-item pending">
+                    <strong>5. CloudFront作成:</strong> S3オリジンで設定
+                </div>
+                <div class="check-item pending">
+                    <strong>6. 環境変数更新:</strong> API URLをALBのDNS名に変更
+                </div>
+                <div class="check-item pending">
+                    <strong>7. GitHub Actions更新:</strong> CloudFront Distribution ID設定
+                </div>
+            </div>
+            
+            <!-- Summary -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; margin: 20px 0; text-align: center;">
+                <h2>📊 構築状況サマリー</h2>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 20px;">
+                    <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px;">
+                        <h3>✅ 完了</h3>
+                        <p style="font-size: 2em; margin: 0;">7項目</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px;">
+                        <h3>⚠️ 要修正</h3>
+                        <p style="font-size: 2em; margin: 0;">3項目</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px;">
+                        <h3>❌ 未構築</h3>
+                        <p style="font-size: 2em; margin: 0;">4項目</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px;">
+                        <h3>🎯 進捗率</h3>
+                        <p style="font-size: 2em; margin: 0;">65%</p>
+                    </div>
+                </div>
+                <p style="margin-top: 20px; font-size: 1.1em;">
+                    基本的なインフラは構築済みですが、<br>
+                    ネットワーク接続とCDN設定が必要です
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
