@@ -1,0 +1,121 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:ap-northeast-1:162174360270:task-definition/jimotoko-backend:13",
+    "containerDefinitions": [
+        {
+            "name": "jimotoko-backend",
+            "image": "162174360270.dkr.ecr.ap-northeast-1.amazonaws.com/jimotoko-backend:4c16be878808437431f584030ee934ac979f6080",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "containerPort": 8000,
+                    "hostPort": 8000,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "CORS_ALLOWED_ORIGINS",
+                    "value": "https://jimotoko.com,https://www.jimotoko.com,https://dv0frkd4qstpf.cloudfront.net,http://localhost:3000"
+                },
+                {
+                    "name": "DEBUG",
+                    "value": "False"
+                },
+                {
+                    "name": "ALLOWED_HOSTS",
+                    "value": "*"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "DATABASE_URL",
+                    "valueFrom": "arn:aws:ssm:ap-northeast-1:162174360270:parameter/jimotoko/database-url"
+                },
+                {
+                    "name": "SECRET_KEY",
+                    "valueFrom": "arn:aws:ssm:ap-northeast-1:162174360270:parameter/jimotoko/secret-key"
+                },
+                {
+                    "name": "GOOGLE_GEOCODING_API_KEY",
+                    "valueFrom": "arn:aws:ssm:ap-northeast-1:162174360270:parameter/jimotoko/google-geocoding-api-key"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/jimotoko-backend",
+                    "awslogs-region": "ap-northeast-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "healthCheck": {
+                "command": [
+                    "CMD-SHELL",
+                    "curl -f http://localhost:8000/api/health/ || exit 1"
+                ],
+                "interval": 30,
+                "timeout": 5,
+                "retries": 3,
+                "startPeriod": 60
+            },
+            "systemControls": []
+        }
+    ],
+    "family": "jimotoko-backend",
+    "taskRoleArn": "arn:aws:iam::162174360270:role/ecsTaskRole",
+    "executionRoleArn": "arn:aws:iam::162174360270:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "revision": 13,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "ecs.capability.container-health-check"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "ecs.capability.secrets.ssm.environment-variables"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "512",
+    "memory": "1024",
+    "registeredAt": "2025-07-30T17:12:57.391000+09:00",
+    "registeredBy": "arn:aws:iam::162174360270:user/developer1"
+}

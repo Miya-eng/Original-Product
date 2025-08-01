@@ -24,7 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('users.urls')),
     path('api/posts/', include('posts.urls')),
-    path('api/health/', health_check),
+    path('api/health', health_check),
 ]
 
 # 画像アップロード対応

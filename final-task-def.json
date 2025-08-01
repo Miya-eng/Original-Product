@@ -1,15 +1,15 @@
 {
   "family": "jimotoko-backend",
+  "taskRoleArn": "arn:aws:iam::162174360270:role/ecsTaskRole",
+  "executionRoleArn": "arn:aws:iam::162174360270:role/ecsTaskExecutionRole",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "512",
   "memory": "1024",
-  "executionRoleArn": "arn:aws:iam::162174360270:role/ecsTaskExecutionRole",
-  "taskRoleArn": "arn:aws:iam::162174360270:role/ecsTaskRole",
   "containerDefinitions": [
     {
       "name": "jimotoko-backend",
-      "image": "162174360270.dkr.ecr.ap-northeast-1.amazonaws.com/jimotoko-backend:latest",
+      "image": "162174360270.dkr.ecr.ap-northeast-1.amazonaws.com/jimotoko-backend:4c16be878808437431f584030ee934ac979f6080",
       "portMappings": [
         {
           "containerPort": 8000,
@@ -19,16 +19,16 @@
       "essential": true,
       "environment": [
         {
+          "name": "CORS_ALLOWED_ORIGINS",
+          "value": "https://jimotoko.com,https://www.jimotoko.com,https://dv0frkd4qstpf.cloudfront.net,http://localhost:3000"
+        },
+        {
           "name": "DEBUG",
           "value": "False"
         },
         {
           "name": "ALLOWED_HOSTS",
-          "value": "jimotoko-api-alb-1288371471.ap-northeast-1.elb.amazonaws.com,*.jimotoko.com,jimotoko.com"
-        },
-        {
-          "name": "CORS_ALLOWED_ORIGINS",
-          "value": "https://jimotoko.com,https://www.jimotoko.com,https://dv0frkd4qstpf.cloudfront.net,http://localhost:3000"
+          "value": "*"
         }
       ],
       "secrets": [
@@ -52,16 +52,6 @@
           "awslogs-region": "ap-northeast-1",
           "awslogs-stream-prefix": "ecs"
         }
-      },
-      "healthCheck": {
-        "command": [
-          "CMD-SHELL",
-          "curl -f http://localhost:8000/api/health/ || exit 1"
-        ],
-        "interval": 30,
-        "timeout": 5,
-        "retries": 3,
-        "startPeriod": 60
       }
     }
   ]
